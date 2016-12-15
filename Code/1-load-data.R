@@ -137,9 +137,6 @@ fullSet$PavedDrive <- ordered(fullSet$PavedDrive, levels = c("N","P","Y"))
 fullSet$PoolQC <- ordered(fullSet$PoolQC, levels = c("NA","Fa","TA","Gd","Ex"))
 fullSet$Fence <- ordered(fullSet$Fence, levels = c("NA","MnWw","GdWo","MnPrv","GdPrv"))
 
-# set factor levels all full set
-library(dplyr)
-fullSet <- fullSet %>% mutate_if(is.factor,is.factor)
 
 # get var names for factors and numerics
 cat.var <- names(fullSet)[which(sapply(fullSet, is.factor))]
