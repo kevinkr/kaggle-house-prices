@@ -1,31 +1,36 @@
 # Kaggle House Prices, EDA
 
 # load previous code
-source("Code/1-load-data.R")
+#source("Code/1-load-data.R")
+source("Code/plot-functions.R")
 
-str(train)
-str(test)
+# Check for Missing Values ------------------------------------------------
 
-# Check for missing values
 colSums(sapply(train, is.na))
 colSums(sapply(test, is.na))
 
 require(Amelia)
-missmap(train, main="Train Data - Missings Map", 
+missmap(fullSet, main="Train Data - Missings Map", 
         col=c("yellow", "black"), legend=FALSE)
-# numerous missing values from PoolQC (NA=No Pool), MiscFeaure, Alley, Fence, FireplaecQu
 
-missmap(test, main="Test Data - Missings Map", 
-        col=c("yellow", "black"), legend=FALSE)
-# numerous missing values from LotFrontage, GarageYrBlt, MasVnrArea
+colSums(sapply(fullSet, is.na)) > 0 # list of vars with missing values
 
-library(Hmisc)    # for impute and some bystats
-
-nonZeroVars <- colSums(sapply(fullSet, is.na)) >0
+# Resolve missing values --------------------------------------------------
 
 # Lot Frontage
 sum(is.na(fullSet$LotFrontage))
-fullSet$LotFrontage <- ifelse(is.na(fullSet$LotFrontage), mean(fullSet$LotFrontage, na.rm = TRUE), fullSet$LotFrontage)
+#fullSet$LotFrontage <- ifelse(is.na(fullSet$LotFrontage), mean(fullSet$LotFrontage, na.rm = TRUE), fullSet$LotFrontage)
+# impute by neighborhood
+list <- unique(fullSet$Neighborhood) 
+library(Hmisc)    # for impute
+imputeMedian <- function(impute.var, filter.var, var.levels) {
+  for (i in var.levels) {
+    impute.var[which(filter.var == i)] <- impute(impute.var[which(filter.var == i)])
+  }
+  return (impute.var)
+}
+fullSet$LotFrontage <- imputeMedian(fullSet$LotFrontage, fullSet$Neighborhood, list)
+
 # Utilities
 sum(is.na(fullSet$Utilities))
 table(fullSet$Utilities)
@@ -97,12 +102,13 @@ sum(is.na(fullSet$SaleType))
 table(fullSet$SaleType)
 fullSet$SaleType[is.na(fullSet$SaleType)] <- "WD"
 
+# get var names for factors and numerics
+cat.var <- names(fullSet)[which(sapply(fullSet, is.factor))]
+num.var <- names(fullSet)[which(sapply(fullSet, is.numeric))]
+num.var <- setdiff(num.var, c("Id", "SalePrice"))
 
 
-
-
-
-
+##########################################
 # split back into test and train
 test <- fullSet[fullSet$isTest==1,]
 train <- fullSet[fullSet$isTest==0,]
@@ -113,3 +119,32 @@ train <- subset(train, select = -c(isTest))
 
 rm(train.raw, test.raw)
 gc()
+
+
+# Adjust skewness in continuous ---------------------------------
+
+
+
+# Remove insignificant categorical variables --------------------
+
+
+
+
+# Multicollinearity of numeric variables ---------------------------------------------
+correlCutOff <- 0.80
+#df = train[,(names(train) %in% num.var)]
+df = fullSet[,(names(fullSet) %in% num.var)] # sue fullSet for analysis
+descrCorr <- cor(df)
+highCorr <- findCorrelation(descrCorr, correlCutOff)
+# remove highly correlated  continuous variables
+train <- train[, -highCorr]
+test <- test[, -highCorr]
+
+# Explore Data Relationships
+library(corrgram)
+corrgram(train,order=NULL,lower.panel=panel.shade,
+         upper.panel=NULL,text.panel = panel.txt)
+
+# Apply Principal Component Analysis
+pca <- prcomp(train)
+summary(pca)

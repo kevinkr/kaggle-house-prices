@@ -5,7 +5,9 @@ options(scipen=999) # remove scientific notation
 
 library(dtplyr)
 
-#Load data
+
+# Load data ---------------------------------------------------------------
+
 readData <- function(path.name, file.name, column.types, missing.types) {
   read.csv( url( paste(path.name, file.name, sep="") ), 
             colClasses=column.types,
@@ -17,13 +19,13 @@ train.data.file <- "train.csv"
 test.data.file <- "test.csv"
 missing.types <- c("NA","")
 
-train.column.types <- c('integer',   # Id
+train.column.types <- c('integer',   # Id 
                         'factor' ,   # MSSubClass
                         'factor',    # MSZoning
-                        'numeric',   # LotFrontage
-                        'numeric',   # LotArea
+                        'numeric',   # LotFrontage 1c
+                        'numeric',   # LotArea 2c
                         'factor',    # Street
-                        'character',    # Alley
+                        'character', # Alley
                         'factor',    # LotShape (ordinal?)                       
                         'factor',    # LandContour
                         'factor',    # Utilities
@@ -36,80 +38,79 @@ train.column.types <- c('integer',   # Id
                         'factor',    # HouseStyle
                         'factor',    # OverallQual (ordinal)
                         'factor',    # OverallCond (ordinal)
-                        'integer',   # YearBuilt
-                        'integer',   # YearRemodAdd
+                        'integer',   # YearBuilt 1d
+                        'integer',   # YearRemodAdd 2d
                         'factor',    # RoofStyle
                         'factor',    # RoofMatl
                         'factor',    # Exterior1st
                         'factor',    # Exterior2nd
                         'factor',    # MasVnrType
-                        'numeric',   # MasVnrArea
+                        'numeric',   # MasVnrArea 3c
                         'factor',    # ExterQual (ordinal)
                         'factor',    # ExterCond (ordinal)
                         'factor',    # Foundation
-                        'character',    # BsmtQual (ordinal)
-                        'character',    # BsmtCond (ordinal)
-                        'character',    # BsmtExposure (ordinal)
-                        'character',    # BsmtFinType1 (ordinal)
-                        'numeric',   # BsmtFinSF1
-                        'character',    # BsmtFinType2 (ordinal)                        
-                        'numeric',   # BsmtFinSF2
-                        'numeric',   # BsmtUnfSF
-                        'numeric',   # TotalBsmtSF
+                        'character', # BsmtQual (ordinal)
+                        'character', # BsmtCond (ordinal)
+                        'character', # BsmtExposure (ordinal)
+                        'character', # BsmtFinType1 (ordinal)
+                        'numeric',   # BsmtFinSF1 4c
+                        'character', # BsmtFinType2 (ordinal)                        
+                        'numeric',   # BsmtFinSF2 5c
+                        'numeric',   # BsmtUnfSF 6c
+                        'numeric',   # TotalBsmtSF 7c
                         'factor',    # Heating
                         'factor',    # HeatingQC (ordinal)
                         'factor',    # CentralAir
                         'factor',    # Electrical
-                        'numeric',   # 1stFlrSF
-                        'numeric',   # 2ndFlrSF
-                        'numeric',   # LowQualFinSF
-                        'numeric',   # GrLivArea
-                        'integer',   # BsmtFullBath
-                        'integer',   # BsmtHalfBath
-                        'integer',   # FullBath
-                        'integer',   # HalfBath
-                        'integer',   # Bedroom
-                        'integer',   # Kitchen
+                        'numeric',   # 1stFlrSF 8c
+                        'numeric',   # 2ndFlrSF 9c
+                        'numeric',   # LowQualFinSF 10c
+                        'numeric',   # GrLivArea 11c
+                        'integer',   # BsmtFullBath 3d
+                        'integer',   # BsmtHalfBath 4d
+                        'integer',   # FullBath 5d
+                        'integer',   # HalfBath 6d
+                        'integer',   # Bedroom 7d
+                        'integer',   # Kitchen 8d
                         'factor',    # KitchenQual (ordinal)
-                        'integer',   # TotRmsAbvGrd                     
+                        'integer',   # TotRmsAbvGrd 9d          
                         'factor',    # Functional (ordinal)                        
-                        'integer',   # Fireplaces
-                        'character',    # FireplaceQu (ordinal)
-                        'character',    # GarageType
-                        'integer',   # GarageYrBlt
-                        'character',    # GarageFinish
-                        'integer',   # GarageCars
-                        'numeric',   # GarageArea
-                        'character',    # GarageQual (ordinal)
-                        'character',    # GarageCond (ordinal) 
+                        'integer',   # Fireplaces 10d
+                        'character', # FireplaceQu (ordinal)
+                        'character', # GarageType
+                        'integer',   # GarageYrBlt 11d
+                        'character', # GarageFinish
+                        'integer',   # GarageCars 12d
+                        'numeric',   # GarageArea 12c
+                        'character', # GarageQual (ordinal)
+                        'character', # GarageCond (ordinal) 
                         'factor',    # PavedDrive
-                        'numeric',   # WoodDeckSF
-                        'numeric',   # OpenPorchSF
-                        'numeric',   # EnclosedPorch
-                        'numeric',   # 3SsnPorch
-                        'numeric',   # ScreenPorch
-                        'numeric',   # PoolArea
-                        'character',    # PoolQC (ordinal)
-                        'character',    # Fence (ordinal)
-                        'character',    # MiscFeature                        
-                        'numeric',   # MiscVal
-                        'integer',   # MoSold
-                        'integer',   # YrSold
+                        'numeric',   # WoodDeckSF 13c
+                        'numeric',   # OpenPorchSF 14c
+                        'numeric',   # EnclosedPorch 15c
+                        'numeric',   # 3SsnPorch 16c
+                        'numeric',   # ScreenPorch 17c
+                        'numeric',   # PoolArea 18c
+                        'character', # PoolQC (ordinal)
+                        'character', # Fence (ordinal)
+                        'character', # MiscFeature                        
+                        'numeric',   # MiscVal 19c
+                        'integer',   # MoSold 13d
+                        'integer',   # YrSold 14d
                         'factor',    # SaleType                       
                         'factor',    # SaleCondition                     
-                        'numeric'    # SalePrice
+                        'numeric'    # SalePrice 20c
 )
 
 test.column.types <- train.column.types[-81]     # # no SalePrice column in test.csv
-
 train.raw <- readData(housing_data.path, train.data.file, 
                       train.column.types, missing.types)
 train <- train.raw
-
 test.raw <- readData(housing_data.path, test.data.file, 
                      test.column.types, missing.types)
 test <- test.raw
 
+# Adjust categorical features ---------------------------------------------
 head(train)
 head(test)
 
@@ -123,9 +124,18 @@ test$isTest <- rep(1,nrow(test))
 train$isTest <- rep(0,nrow(train))
 fullSet <- rbind(test,train)
 
-# set ordinal variables
+library(dplyr)
+#fullSet <- fullSet %>% mutate_each_(funs(factor), cat.var)
+
+# correct variable names changed by read.csv
+names(fullSet)[names(fullSet) == 'X1stFlrSF'] <- 'FirstFlrSF'
+names(fullSet)[names(fullSet) == 'X2ndFlrSF'] <- 'SecondFlrSF'
+names(fullSet)[names(fullSet) == 'X3SsnPorch'] <- 'ThreeSsnPorch'
+
+# resolve NA levls and set ordinal variables
 fullSet$Alley[is.na(fullSet$Alley)] <- "No Alley Access"
 fullSet$Alley <- factor(fullSet$Alley)
+
 fullSet$OverallQual <- ordered(fullSet$OverallQual, levels = c(1,2,3,4,5,6,7,8,9,10))
 fullSet$OverallCond <- ordered(fullSet$OverallCond, levels = c(1,2,3,4,5,6,7,8,9))
 fullSet$ExterQual <- ordered(fullSet$ExterQual, levels = c("Po","Fa","TA","Gd","Ex"))
@@ -176,12 +186,5 @@ fullSet$Fence[is.na(fullSet$Fence)] <- "No Fence"
 fullSet$MiscFeature[is.na(fullSet$MiscFeature)] <- "None"
 fullSet$MiscFeature <- factor(fullSet$MiscFeature)
 
-# get var names for factors and numerics
-cat.var <- names(train)[which(sapply(train, is.factor))]
-num.var <- names(train)[which(sapply(train, is.numeric))]
-num.var <- setdiff(num.var, c("Id", "SalePrice"))
-
-train.cat <- train.raw[,cat.var]
-train.num <- train.raw[,num.var]
 
 
