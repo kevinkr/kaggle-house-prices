@@ -102,6 +102,7 @@ fullSet$SaleType[is.na(fullSet$SaleType)] <- "WD"
 
 
 
+
 # split back into test and train
 test <- fullSet[fullSet$isTest==1,]
 train <- fullSet[fullSet$isTest==0,]
