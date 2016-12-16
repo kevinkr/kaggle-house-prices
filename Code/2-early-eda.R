@@ -96,3 +96,19 @@ fullSet$GarageArea <- ifelse(is.na(fullSet$GarageArea), mean(fullSet$GarageArea,
 sum(is.na(fullSet$SaleType))
 table(fullSet$SaleType)
 fullSet$SaleType[is.na(fullSet$SaleType)] <- "WD"
+
+
+
+
+
+
+# split back into test and train
+test <- fullSet[fullSet$isTest==1,]
+train <- fullSet[fullSet$isTest==0,]
+# drop loss from test set
+test <- subset(test, select = -c(SalePrice))
+test <- subset(test, select = -c(isTest))
+train <- subset(train, select = -c(isTest))
+
+rm(train.raw, test.raw)
+gc()

@@ -176,16 +176,6 @@ fullSet$Fence[is.na(fullSet$Fence)] <- "No Fence"
 fullSet$MiscFeature[is.na(fullSet$MiscFeature)] <- "None"
 fullSet$MiscFeature <- factor(fullSet$MiscFeature)
 
-
-# split back into test and train
-test <- fullSet[fullSet$isTest==1,]
-train <- fullSet[fullSet$isTest==0,]
-# drop loss from test set
-test <- subset(test, select = -c(SalePrice))
-test <- subset(test, select = -c(isTest))
-train <- subset(train, select = -c(isTest))
-
-
 # get var names for factors and numerics
 cat.var <- names(train)[which(sapply(train, is.factor))]
 num.var <- names(train)[which(sapply(train, is.numeric))]
@@ -195,5 +185,3 @@ train.cat <- train.raw[,cat.var]
 train.num <- train.raw[,num.var]
 
 
-rm(train.raw, test.raw)
-gc()
