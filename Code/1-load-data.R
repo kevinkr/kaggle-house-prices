@@ -4,7 +4,13 @@
 options(scipen=999) # remove scientific notation
 
 library(dtplyr)
-
+library(data.table)
+library(dplyr)
+library(e1071)
+library(forecast)
+library(MASS)
+library(caret)
+library(Hmisc)    # for impute
 
 # Load data ---------------------------------------------------------------
 
@@ -119,12 +125,11 @@ str(train, list.len = 999)
 str(test, list.len = 999) 
 
 # Bind test and train
-test$SalePrice <- NA
+test$SalePrice <- -99
 test$isTest <- rep(1,nrow(test))
 train$isTest <- rep(0,nrow(train))
 fullSet <- rbind(test,train)
 
-library(dplyr)
 #fullSet <- fullSet %>% mutate_each_(funs(factor), cat.var)
 
 # correct variable names changed by read.csv

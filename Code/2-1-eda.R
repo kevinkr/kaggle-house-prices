@@ -2,17 +2,11 @@
 
 # load previous code
 #source("Code/1-load-data.R")
-source("Code/plot-functions.R")
 
 # Check for Missing Values ------------------------------------------------
 
 colSums(sapply(train, is.na))
 colSums(sapply(test, is.na))
-
-require(Amelia)
-missmap(fullSet, main="Train Data - Missings Map", 
-        col=c("yellow", "black"), legend=FALSE)
-
 colSums(sapply(fullSet, is.na)) > 0 # list of vars with missing values
 
 # Resolve missing values --------------------------------------------------
@@ -22,7 +16,6 @@ sum(is.na(fullSet$LotFrontage))
 #fullSet$LotFrontage <- ifelse(is.na(fullSet$LotFrontage), mean(fullSet$LotFrontage, na.rm = TRUE), fullSet$LotFrontage)
 # impute by neighborhood
 list <- unique(fullSet$Neighborhood) 
-library(Hmisc)    # for impute
 imputeMedian <- function(impute.var, filter.var, var.levels) {
   for (i in var.levels) {
     impute.var[which(filter.var == i)] <- impute(impute.var[which(filter.var == i)])
@@ -107,43 +100,68 @@ cat.var <- names(fullSet)[which(sapply(fullSet, is.factor))]
 num.var <- names(fullSet)[which(sapply(fullSet, is.numeric))]
 num.var <- setdiff(num.var, c("Id", "SalePrice"))
 
-
-##########################################
-# split back into test and train
-test <- fullSet[fullSet$isTest==1,]
-train <- fullSet[fullSet$isTest==0,]
-# drop loss from test set
-test <- subset(test, select = -c(SalePrice))
-test <- subset(test, select = -c(isTest))
-train <- subset(train, select = -c(isTest))
-
-rm(train.raw, test.raw)
-gc()
-
 # Multicollinearity of numeric variables ---------------------------------------------
 correlCutOff <- 0.80
 #df = train[,(names(train) %in% num.var)]
-df = fullSet[,(names(fullSet) %in% num.var)] # sue fullSet for analysis
+df = fullSet[,(names(fullSet) %in% num.var)] # use fullSet for analysis
 descrCorr <- cor(df)
 highCorr <- findCorrelation(descrCorr, correlCutOff)
 # remove highly correlated  continuous variables
-train <- train[, -highCorr]
-test <- test[, -highCorr]
-
+fullSet <- fullSet[, -highCorr]
 
 # Adjust skewness in continuous ---------------------------------
 
+#first get data type for each feature
+cont_nums <- c("LotFrontage","LotArea","MasVnrArea","BsmtFinSF1","BsmtFinSF2","BsmtUnfSF", 
+               "TotalBsmtSF","FirstFlrSF","SecondFlrSF","LowQualFinSF","GrLivArea","GarageArea",
+               "WoodDeckSF","OpenPorchSF","EnclosedPorch","ThreeSsnPorch","ScreenPorch","PoolArea",
+               "MiscVal")
 
+fullSet <- as.data.table(fullSet)
+# remove skewness in train
+for (f in cont_nums) {
+  print(f)
+  tst <- e1071::skewness(fullSet[, eval(as.name(f))])
+  if (tst > .25) {
+    if (is.na(fullSet[, BoxCoxTrans(eval(as.name(f)))$lambda])) next
+    fullSet[, eval(as.name(f)) := BoxCox(eval(as.name(f)), BoxCoxTrans(eval(as.name(f)))$lambda)]
+  }
+}
 
+# scale train
+for (f in cont_nums) {
+  fullSet[, eval(as.name(f)) := scale(eval(as.name(f)))]
+}
+
+fullSet <- as.data.frame(fullSet)
+cat.var <- names(fullSet)[which(sapply(fullSet, is.factor))]
 # Remove insignificant categorical variables --------------------
+######
+# category reduction fucntion
+######
+# inputs category name, cutoff value
+reduce_cats <- function(cat.name, cutoff.val) {
+  prop.table <- sort(prop.table(table(fullSet[[cat.name]])), decreasing = T)
+  #return(proptable)
+  weak.prop.table <- prop.table < cutoff.val
+  #return(weak.prop.table)
+  # grab the names
+  weak.prop.names <- names(prop.table[prop.table < cutoff.val])
+  return(weak.prop.names)
+}
+
+############full loop attempt
+for (n in cat.var) {
+  #print(n)
+  # call function to return category names for reduction, number is cutoff val
+  #weak.prop.names <- reduce_cats(cat.name, 0.01)
+  weak.prop.names <- reduce_cats(n, 0.01)
+  # filter data set by categories that are in the weak prop names vector using %in% search'
+  # first convert to character
+  fullSet[[n]] <- as.character(fullSet[[n]])
+  fullSet[fullSet[[n]] %in% weak.prop.names, n] <- "OTHER"
+  fullSet[[n]] <- as.factor(fullSet[[n]])
+}
 
 
-
-
-
-
-# Explore Data Relationships
-library(corrgram)
-corrgram(train,order=NULL,lower.panel=panel.shade,
-         upper.panel=NULL,text.panel = panel.txt)
 

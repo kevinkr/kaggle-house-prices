@@ -7,6 +7,7 @@ library(rattle)					# Fancy tree plot
 library(rpart.plot)				# Enhanced tree plots
 library(RColorBrewer)
 library(pROC)
+library(Metrics)
 
 # for(attr in colnames(train))
 # {
@@ -27,14 +28,10 @@ library(pROC)
 preProc <-c("BoxCox", "center","scale")
 
 seed <- 1469
-
-#testTrain <- testTrain %>% mutate_each_(funs(factor), cat.var)
-
 testTrainData <- subset(testTrain, select = -c(SalePrice))
 
-
 #Setting up sampling strategy
-control <- trainControl(method = 'cv', number=6)
+control <- trainControl(method = 'cv', number=10)
 
 rpart_model <- train(x = testTrainData,
                      y = testTrain$SalePrice,
@@ -46,19 +43,16 @@ rpart_model <- train(x = testTrainData,
 
 rpart_model$finalModel
 
-fancyRpartPlot(rpart_model$finalModel)
-
+fancyRpartPlot(rpart_model$finalModel, tweak=2)
 plot(rpart_model, metric='RMSE')
-  
 ctreeVarImp = varImp(rpart_model)
 
+# Prediction on hold out set
 Prediction_1<- predict(rpart_model, newdata= validTrain)
-library(Metrics)
 rmse(log(validTrain$SalePrice),log(Prediction_1))
 
 preds <- predict(rpart_model, newdata= test)
 
-library(data.table)
 SUBMISSION_FILE = "Data/sample_submission.csv"
 submission = fread(SUBMISSION_FILE, colClasses = c("integer", "numeric"))
 submission$SalePrice = preds
