@@ -120,16 +120,6 @@ train <- subset(train, select = -c(isTest))
 rm(train.raw, test.raw)
 gc()
 
-
-# Adjust skewness in continuous ---------------------------------
-
-
-
-# Remove insignificant categorical variables --------------------
-
-
-
-
 # Multicollinearity of numeric variables ---------------------------------------------
 correlCutOff <- 0.80
 #df = train[,(names(train) %in% num.var)]
@@ -140,11 +130,20 @@ highCorr <- findCorrelation(descrCorr, correlCutOff)
 train <- train[, -highCorr]
 test <- test[, -highCorr]
 
+
+# Adjust skewness in continuous ---------------------------------
+
+
+
+# Remove insignificant categorical variables --------------------
+
+
+
+
+
+
 # Explore Data Relationships
 library(corrgram)
 corrgram(train,order=NULL,lower.panel=panel.shade,
          upper.panel=NULL,text.panel = panel.txt)
 
-# Apply Principal Component Analysis
-pca <- prcomp(train)
-summary(pca)

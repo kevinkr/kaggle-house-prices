@@ -5,6 +5,8 @@
 
 library("caret")
 set.seed(1469)
+
+train <- subset(train, select = -c(Id))
 rowsTrain <- createDataPartition(train$SalePrice
                                  , p = 0.8
                                  , list = FALSE)

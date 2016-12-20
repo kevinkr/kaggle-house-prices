@@ -7,7 +7,7 @@ ctrl<-trainControl(method = "repeatedcv",number = 10,repeats=3)
 seed <- 1469
 metric <- "RMSE"
 
-lmCVFit <- train(SalePrice ~ ., data = testTrain, method = "lm", trControl = ctrl, metric="Rsquared")
+lmCVFit <- train(SalePrice ~ ., data = testTrain, method = "lm", trControl = ctrl, metric="RMSE")
 summary(lmCVFit)
 
 residuals<-resid(lmCVFit)
