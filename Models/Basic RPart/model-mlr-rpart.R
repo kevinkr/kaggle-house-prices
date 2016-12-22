@@ -105,7 +105,6 @@ lrn = setHyperPars(lrn, par.vals = res$x)
 mod = train(lrn, trainTask)
 plotLearnerPrediction("regr.rpart", features = "LotFrontage", task = trainTask)
 
-
 # predict on new data
 predict = predict(mod, newdata = validTrain)
 predict

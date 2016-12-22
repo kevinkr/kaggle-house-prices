@@ -95,6 +95,11 @@ sum(is.na(fullSet$SaleType))
 table(fullSet$SaleType)
 fullSet$SaleType[is.na(fullSet$SaleType)] <- "WD"
 
+# MSZoning
+sum(is.na(fullSet$MSZoning))
+table(fullSet$MSZoning)
+fullSet$MSZoning[is.na(fullSet$MSZoning)] <- "RL"
+
 # get var names for factors and numerics
 cat.var <- names(fullSet)[which(sapply(fullSet, is.factor))]
 num.var <- names(fullSet)[which(sapply(fullSet, is.numeric))]

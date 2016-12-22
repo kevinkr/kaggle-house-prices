@@ -5,10 +5,11 @@
 
 ##########################################
 # split back into test and train
+fullSet <- fullSet %>% mutate_each_(funs(factor), cat.var)
 test <- fullSet[fullSet$isTest==1,]
 train <- fullSet[fullSet$isTest==0,]
 # drop loss from test set
-test <- subset(test, select = -c(SalePrice))
+#test <- subset(test, select = -c(SalePrice))
 test <- subset(test, select = -c(isTest))
 train <- subset(train, select = -c(isTest))
 
