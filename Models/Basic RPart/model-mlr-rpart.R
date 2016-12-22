@@ -56,7 +56,7 @@ getFeatureImportanceLearner.regr.rpart = function(.learner, .model, ...) {
 }
 
 trainTask = makeRegrTask(data = as.data.frame(testTrain), target = "SalePrice")
-testTask = makeRegrTask(data = as.data.frame(test), target = "SalePrice")
+testTask = makeRegrTask(data = as.data.frame(subset(test, select = -c(Id))), target = "SalePrice")
 
 # specify mlr learner with some nice hyperpars
 set.seed(123)
@@ -71,11 +71,9 @@ getDefaultMeasure(trainTask)
 # 1) Define the set of parameters you want to tune (here we use only 'obj_par')
 ps <- makeParamSet(
       makeIntegerParam("minsplit", lower = 1, upper = 40),
-      makeIntegerParam("minbucket", lower = 1, upper = 40),
+      #makeIntegerParam("minbucket", lower = 1, upper = 40),
       makeNumericParam("cp", lower = 0.0002, upper = 0.05, trafo = function(x) x/2),
-      makeIntegerParam("maxdepth", lower = 1, upper = 30),
-      makeDiscreteParam("maxsurrogate", values = c(0, 5, 10)),
-      makeDiscreteParam("usesurrogate", values = c(0, 1, 2))
+      makeIntegerParam("maxdepth", lower = 1, upper = 30)
 ) 
 
 # 2) Use 10-fold Cross-Validation to measure improvements
@@ -96,8 +94,8 @@ res = tuneParams(lrn,
                  task = trainTask, 
                  resampling = rdesc,
                  par.set = ps, 
-                 control = makeTuneControlGrid(resolution = 8L),
-                 measures = m1)
+                 control = makeTuneControlGrid(resolution = 2L),
+                 measures = list(m1, m2))
 
 opt.grid = as.data.frame(res$opt.path)
 # Train on entire dataset (using best hyperparameters)

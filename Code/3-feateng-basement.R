@@ -1,9 +1,15 @@
-# Kaggle House Prices 12-21-16
-# MLR Ranger
+# Kaggle Housing Prices
+# Feature engineering
+# use 4-data-prep to split into train and test
 
+# Examine Basement variables using RF to identify important variables
 library(mlr)
 library(mlbench)
 library(ranger)
+
+# create df
+basementTrain <- subset(train, select = grepl("Bsmt", names(train)))
+basementTrain <- cbind(basementTrain,SalePrice=train$SalePrice)
 
 makeRLearner.regr.ranger = function() {
   makeRLearnerRegr(
@@ -57,8 +63,8 @@ getFeatureImportanceLearner.regr.ranger = function(.learner, .model, ...) {
 }
 
 # create mlr train and test task
-trainTask = makeRegrTask(data = as.data.frame(testTrain), target = "SalePrice")
-testTask = makeRegrTask(data = as.data.frame(test[,2:78]), target = "SalePrice")
+trainTask = makeRegrTask(data = basementTrain, target = "SalePrice")
+#testTask = makeRegrTask(data = as.data.frame(test[,2:78]), target = "SalePrice")
 
 # Measures
 m1 = rmse
@@ -81,12 +87,10 @@ ps = makeParamSet(
   # for RF, start with # of trees
   # then max tree depth
   # and minimum sample leaf
-  makeIntegerParam("num.trees", lower = 300, upper = 500),
+  makeIntegerParam("num.trees", lower = 1, upper = 500),
   #makeIntegerParam("min.node.size", lower = 1, upper = 8),
   #makeDiscreteParam("num.trees", values = c(200, 250, 500, 750, 1000)),
-  makeLogicalParam("respect.unordered.factors", TRUE),
-  makeDiscreteParam("importance", "impurity"),
-  makeIntegerParam("mtry", lower = 12, upper = 24)
+  makeIntegerParam("mtry", lower = 1, upper = 9)
 )
 
 # 2) Use 3-fold Cross-Validation to measure improvements
@@ -103,48 +107,31 @@ res = tuneParams(lrn,
                  task = trainTask, 
                  resampling = rdesc,
                  par.set = ps, 
-                 control = makeTuneControlGrid(resolution = 10L),
-                 measures = m1
-                 )                 
+                 control = makeTuneControlGrid(resolution = 5L),
+                 measures = list(m1, m2)
+)                 
 opt.grid = as.data.frame(res$opt.path)
 g = ggplot(opt.grid, aes(x = num.trees, y = mtry, fill = rmse.test.rmse))
 g + geom_tile()
+library(FSelector)
+fv = generateFilterValuesData(trainTask, method = "information.gain")
+fv
+fv2 = generateFilterValuesData(trainTask, method = c("information.gain", "chi.squared"))
+fv2
+plotFilterValues(fv2)
+plotFilterValuesGGVIS(fv2)
 
-# best parameters
-res$x
-# test result
-res$y
+# Bsmt Quality
+levels(fullSet$BsmtQual)
+table(fullSet$BsmtQual)
+fullSet$newBsmtQualSF <- as.numeric(factor(fullSet$BsmtQual, levels=c("No Bsmnt", "Po",
+                                                  "Fa", "TA", "Gd", "Ex")))
+head(fullSet[,c("BsmtQual","newBsmtQualSF")])
+fullSet$newBsmtQualSF <- fullSet$newBsmtQualSF * fullSet$TotalBsmtSF
 
-# resampling
-r = resample("regr.ranger", trainTask, rdesc,
-             measures = m1, par.vals = res$x, show.info = FALSE)
-r$aggr
-r$measures.train
-r$measures.test
-
-# Train on entire dataset (using best hyperparameters)
-lrn = setHyperPars(lrn, par.vals = res$x)
-mod = train(lrn, trainTask)
-predict = predict(mod, trainTask)
-predict
-rmse(log(testTrain$SalePrice),log(as.data.frame(predict)))
-
-# predict on new data
-predict = predict(mod, newdata = validTrain)
-predict
-rmse(log(validTrain$SalePrice),log(as.data.frame(predict)))
-
-
-
-# train on full trian set
-fullTrainTask = makeRegrTask(data = as.data.frame(train), target = "SalePrice")
-final_mod = train(lrn, fullTrainTask)
-
-pred = getPredictionResponse(predict(final_mod, testTask))
-summary(pred)
-
-SUBMISSION_FILE = "Data/sample_submission.csv"
-submission = fread(SUBMISSION_FILE, colClasses = c("integer", "numeric"))
-submission$SalePrice = pred
-write.csv(submission,file = 'Submissions/ranger-mlr-v2-12-22-16.csv',row.names = FALSE)
-
+# Bsmt Fin Type 1
+levels(fullSet$BsmtFinType1)
+fullSet$newBsmtFinTypeSF <- as.numeric(factor(fullSet$BsmtFinType1, levels=c("No Bsmnt", "Unf",
+                                                                      "LWQ", "Rec", "BLQ", "ALQ", "GLQ")))
+head(fullSet[,c("BsmtFinType1","newBsmtFinTypeSF")])
+fullSet$newBsmtFinTypeSF <- fullSet$newBsmtFinTypeSF * fullSet$BsmtFinSF1

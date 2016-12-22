@@ -4,6 +4,7 @@
 library(mlr)
 library(mlbench)
 library(ranger)
+library(Metrics)
 
 makeRLearner.regr.ranger = function() {
   makeRLearnerRegr(
@@ -58,7 +59,7 @@ getFeatureImportanceLearner.regr.ranger = function(.learner, .model, ...) {
 
 # create mlr train and test task
 trainTask = makeRegrTask(data = as.data.frame(testTrain), target = "SalePrice")
-testTask = makeRegrTask(data = as.data.frame(test[,2:78]), target = "SalePrice")
+testTask = makeRegrTask(data = as.data.frame(subset(test, select = c(-Id))), target = "SalePrice")
 
 # Measures
 m1 = rmse
@@ -81,12 +82,10 @@ ps = makeParamSet(
   # for RF, start with # of trees
   # then max tree depth
   # and minimum sample leaf
-  makeIntegerParam("num.trees", lower = 300, upper = 500),
+  makeIntegerParam("num.trees", lower = 20, upper = 100),
   #makeIntegerParam("min.node.size", lower = 1, upper = 8),
   #makeDiscreteParam("num.trees", values = c(200, 250, 500, 750, 1000)),
-  makeLogicalParam("respect.unordered.factors", TRUE),
-  makeDiscreteParam("importance", "impurity"),
-  makeIntegerParam("mtry", lower = 12, upper = 24)
+  makeIntegerParam("mtry", lower = 5, upper = 10)
 )
 
 # 2) Use 3-fold Cross-Validation to measure improvements
@@ -103,12 +102,67 @@ res = tuneParams(lrn,
                  task = trainTask, 
                  resampling = rdesc,
                  par.set = ps, 
-                 control = makeTuneControlGrid(resolution = 10L),
-                 measures = m1
+                 control = makeTuneControlGrid(resolution = 2L),
+                 measures = list(m1, m2)
                  )                 
+
+# Train on entire dataset (using best hyperparameters)
+lrn = setHyperPars(lrn, par.vals = res$x)
+mod = train(lrn, trainTask)
+
+predict = predict(mod, trainTask)
+predict
+rmse(log(testTrain$SalePrice),log(as.data.frame(predict)))
+
+# predict on new data
+predict = predict(mod, newdata = validTrain)
+predict
+rmse(log(validTrain$SalePrice),log(as.data.frame(predict)))
+
+#######################
 opt.grid = as.data.frame(res$opt.path)
 g = ggplot(opt.grid, aes(x = num.trees, y = mtry, fill = rmse.test.rmse))
 g + geom_tile()
+
+res_data = generateHyperParsEffectData(res)
+ggplot(data=res_data$data, aes(x=mtry, y=rmse.train.rmse)) + 
+  geom_line(aes(color="rmse.train.rmse")) + 
+  geom_line(aes(y=rmse.test.rmse, color = "rmse.test.rmse")) +
+  facet_wrap(~num.trees)
+
+# mtry
+# Let's explore various training set sizes for each 
+lrn_best = setHyperPars(makeLearner('regr.ranger', id = "opt_regr.ranger"), par.vals = res$x)
+lrn_max1 = setHyperPars(makeLearner('regr.ranger', id= "mtry = 11"), par.vals = list(mtry = 11))
+lrn_max5 = setHyperPars(makeLearner('regr.ranger', id= "mtry = 17"), par.vals = list(mtry = 17))
+lrn_max10 = setHyperPars(makeLearner('regr.ranger', id= "mtry = 22"), par.vals = list(mtry = 22))
+
+r = generateLearningCurveData(list(lrn_best, lrn_max1, lrn_max5, lrn_max10, 'regr.ranger'), 
+                              task = trainTask,
+                              percs = seq(0.1, 1, by = 0.1),
+                              measures = list(m1, m2),
+                              show.info = TRUE,
+                              resampling = rdesc
+)
+plotLearningCurve(r, facet = "learner", pretty.names = FALSE)
+plotLearningCurve(r, pretty.names = FALSE)
+
+# num.trees
+# Let's explore various training set sizes for each 
+lrn_best = setHyperPars(makeLearner('regr.ranger', id = "opt_regr.ranger"), par.vals = res$x)
+lrn_max1 = setHyperPars(makeLearner('regr.ranger', id= "num.trees = 10"), par.vals = list(num.trees = 10))
+lrn_max5 = setHyperPars(makeLearner('regr.ranger', id= "num.trees = 200"), par.vals = list(num.trees = 200))
+lrn_max10 = setHyperPars(makeLearner('regr.ranger', id= "num.trees = 500"), par.vals = list(num.trees = 500))
+
+r = generateLearningCurveData(list(lrn_best, lrn_max1, lrn_max5, lrn_max10, 'regr.ranger'), 
+                              task = trainTask,
+                              percs = seq(0.1, 1, by = 0.1),
+                              measures = list(m1, m2),
+                              show.info = TRUE,
+                              resampling = rdesc
+)
+plotLearningCurve(r, facet = "learner", pretty.names = FALSE)
+plotLearningCurve(r, pretty.names = FALSE)
 
 # best parameters
 res$x
@@ -122,18 +176,7 @@ r$aggr
 r$measures.train
 r$measures.test
 
-# Train on entire dataset (using best hyperparameters)
-lrn = setHyperPars(lrn, par.vals = res$x)
-mod = train(lrn, trainTask)
-predict = predict(mod, trainTask)
-predict
-rmse(log(testTrain$SalePrice),log(as.data.frame(predict)))
-
-# predict on new data
-predict = predict(mod, newdata = validTrain)
-predict
-rmse(log(validTrain$SalePrice),log(as.data.frame(predict)))
-
+##############################################
 
 
 # train on full trian set

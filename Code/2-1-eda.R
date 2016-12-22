@@ -15,6 +15,8 @@ colSums(sapply(fullSet, is.na)) > 0 # list of vars with missing values
 sum(is.na(fullSet$LotFrontage))
 #fullSet$LotFrontage <- ifelse(is.na(fullSet$LotFrontage), mean(fullSet$LotFrontage, na.rm = TRUE), fullSet$LotFrontage)
 # impute by neighborhood
+library(Hmisc)    # for impute
+
 list <- unique(fullSet$Neighborhood) 
 imputeMedian <- function(impute.var, filter.var, var.levels) {
   for (i in var.levels) {
@@ -106,6 +108,7 @@ num.var <- names(fullSet)[which(sapply(fullSet, is.numeric))]
 num.var <- setdiff(num.var, c("Id", "SalePrice"))
 
 # Multicollinearity of numeric variables ---------------------------------------------
+library(caret)
 correlCutOff <- 0.80
 #df = train[,(names(train) %in% num.var)]
 df = fullSet[,(names(fullSet) %in% num.var)] # use fullSet for analysis
@@ -121,6 +124,10 @@ cont_nums <- c("LotFrontage","LotArea","MasVnrArea","BsmtFinSF1","BsmtFinSF2","B
                "TotalBsmtSF","FirstFlrSF","SecondFlrSF","LowQualFinSF","GrLivArea","GarageArea",
                "WoodDeckSF","OpenPorchSF","EnclosedPorch","ThreeSsnPorch","ScreenPorch","PoolArea",
                "MiscVal")
+
+library(data.table)
+library(MASS)
+library(forecast)
 
 fullSet <- as.data.table(fullSet)
 # remove skewness in train
@@ -168,5 +175,12 @@ for (n in cat.var) {
   fullSet[[n]] <- as.factor(fullSet[[n]])
 }
 
+
+################# Zero or near zero variance
+df = fullSet[,(names(fullSet) %in% cat.var)] # use fullSet for analysis
+x <- nearZeroVar(df, saveMetrics = TRUE)
+
+x[x[,"zeroVar"] > 0, ]
+x[x[,"zeroVar"] + x[, "nzv"] > 0, ]
 
 
