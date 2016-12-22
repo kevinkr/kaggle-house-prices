@@ -46,3 +46,8 @@ corrgram(fullSet,order=NULL,lower.panel=panel.shade,
 require(Amelia)
 missmap(fullSet, main="Train Data - Missings Map", 
         col=c("yellow", "black"), legend=FALSE)
+
+DF = as.matrix(as.data.frame(lapply(fullSet, as.numeric)))
+
+corrplot::corrplot(cor(DF), method = "circle", type = "lower", diag = FALSE,
+                   order = "FPC", tl.cex = 0.6, tl.col = "black") #  plot matrix and ordered by first principal component

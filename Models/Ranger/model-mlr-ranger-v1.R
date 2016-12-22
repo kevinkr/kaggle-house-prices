@@ -18,7 +18,7 @@ makeRLearner.regr.ranger = function() {
       makeNumericLearnerParam(id = "sample.fraction", lower = 0L, upper = 1L),
       makeNumericVectorLearnerParam(id = "split.select.weights", lower = 0, upper = 1),
       makeUntypedLearnerParam(id = "always.split.variables"),
-      makeLogicalLearnerParam(id = "respect.unordered.factors", default = FALSE),
+      makeLogicalLearnerParam(id = "respect.unordered.factors", default = TRUE),
       makeDiscreteLearnerParam(id = "importance", values = c("none", "impurity", "permutation"), default = "none", tunable = FALSE),
       makeLogicalLearnerParam(id = "write.forest", default = TRUE, tunable = FALSE),
       makeLogicalLearnerParam(id = "scale.permutation.importance", default = FALSE, requires = quote(importance == "permutation"), tunable = FALSE),
@@ -70,7 +70,7 @@ lrn = makeLearner("regr.ranger")
 lrn = setHyperPars(lrn, 
                    num.trees = 200,
                    min.node.size = 5,
-                   respect.unordered.factors = FALSE,
+                   respect.unordered.factors = TRUE,
                    verbose = TRUE,
                    mtry = 5,
                    importance = "impurity"
@@ -78,12 +78,15 @@ lrn = setHyperPars(lrn,
 
 # 1) make parameter set
 ps = makeParamSet(
-  makeIntegerParam("num.trees", lower = 5, upper = 1200),
-  makeIntegerParam("min.node.size", lower = 1, upper = 30),
+  # for RF, start with # of trees
+  # then max tree depth
+  # and minimum sample leaf
+  makeIntegerParam("num.trees", lower = 300, upper = 500),
+  #makeIntegerParam("min.node.size", lower = 1, upper = 8),
   #makeDiscreteParam("num.trees", values = c(200, 250, 500, 750, 1000)),
-  makeLogicalParam("respect.unordered.factors", FALSE),
+  makeLogicalParam("respect.unordered.factors", TRUE),
   makeDiscreteParam("importance", "impurity"),
-  makeIntegerParam("mtry", lower = 1, upper = 20)
+  makeIntegerParam("mtry", lower = 12, upper = 24)
 )
 
 # 2) Use 3-fold Cross-Validation to measure improvements
