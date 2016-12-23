@@ -3,20 +3,7 @@
 # load previous code
 #source("Code/2-1-eda.R")
 
-###########################################
-# Feature Engineering - Basement
-# Drop some levels
-fullSet <- subset(fullSet, select = -c(BsmtHalfBath,BsmtFinSF2,BsmtFinType2,BsmtFullBath, 
-                                       BsmtCond, BsmtUnfSF, BsmtExposure))
-# Create new features
-fullSet$newBsmtQualSF <- as.numeric(factor(fullSet$BsmtQual, levels=c("No Bsmnt", "Po",
-                                                                      "Fa", "TA", "Gd", "Ex")))
-fullSet$newBsmtQualSF <- fullSet$newBsmtQualSF * fullSet$TotalBsmtSF
 
-# Bsmt Fin Type 1
-fullSet$newBsmtFinTypeSF <- as.numeric(factor(fullSet$BsmtFinType1, levels=c("No Bsmnt", "Unf",
-                                                                             "LWQ", "Rec", "BLQ", "ALQ", "GLQ")))
-fullSet$newBsmtFinTypeSF <- fullSet$newBsmtFinTypeSF * fullSet$BsmtFinSF1
 
 
 ##########################################

@@ -1,7 +1,7 @@
 
 # EDA Plotting ------------------------------------------------------------
 # load previous code
-source("Code/2-1-eda.R")
+#source("Code/2-1-eda.R")
 
 ###########################
 ## PLOTTING
@@ -11,7 +11,8 @@ train.num <- select(train, one_of(cont_nums))
 doPlots(train.num, fun = plotDen, ii =1:4, lab=log(train$SalePrice), ncol = 2)
 doPlots(train.num, fun = plotDen, ii =5:8, lab=log(train$SalePrice), ncol = 2)
 doPlots(train.num, fun = plotDen, ii =9:12, lab=log(train$SalePrice), ncol = 2)
-doPlots(train.num, fun = plotDen, ii =13:14, lab=log(train$SalePrice), ncol = 2)
+doPlots(train.num, fun = plotDen, ii =13:16, lab=log(train$SalePrice), ncol = 2)
+doPlots(train.num, fun = plotDen, ii =17:18, lab=log(train$SalePrice), ncol = 2)
 
 train.cat <- select(train, one_of(cat.var))
 doPlots(train.cat, fun = plotHist, ii = 1:6, lab=blank, ncol = 3)
@@ -39,8 +40,9 @@ for (i in cat.var) {
 
 # Explore Data Relationships
 library(corrgram)
-corrgram(fullSet,order=NULL,lower.panel=panel.shade,
-         upper.panel=NULL,text.panel = panel.txt)
+library(ellipse)
+corrgram(fullSet,order=TRUE,lower.panel=panel.shade,
+         upper.panel=panel.pts,text.panel = panel.txt, cex=1.2)
 
 # Missing data
 require(Amelia)

@@ -2,6 +2,7 @@
 library(e1071) #skewness
 library(ggplot2) # ggplot
 library(gridExtra) # grid.arrange
+library(dplyr)
 
 ###################
 # Plot functions

@@ -1,10 +1,11 @@
 # Kaggle House Prices 12-21-16
 # MLR Ranger
 
-library(mlr)
 library(mlbench)
 library(ranger)
 library(Metrics)
+library(mlr)
+
 
 makeRLearner.regr.ranger = function() {
   makeRLearnerRegr(
@@ -19,7 +20,7 @@ makeRLearner.regr.ranger = function() {
       makeNumericLearnerParam(id = "sample.fraction", lower = 0L, upper = 1L),
       makeNumericVectorLearnerParam(id = "split.select.weights", lower = 0, upper = 1),
       makeUntypedLearnerParam(id = "always.split.variables"),
-      makeLogicalLearnerParam(id = "respect.unordered.factors", default = TRUE),
+      makeLogicalLearnerParam(id = "respect.unordered.factors", default = FALSE),
       makeDiscreteLearnerParam(id = "importance", values = c("none", "impurity", "permutation"), default = "none", tunable = FALSE),
       makeLogicalLearnerParam(id = "write.forest", default = TRUE, tunable = FALSE),
       makeLogicalLearnerParam(id = "scale.permutation.importance", default = FALSE, requires = quote(importance == "permutation"), tunable = FALSE),
@@ -63,7 +64,7 @@ testTask = makeRegrTask(data = as.data.frame(subset(test, select = c(-Id))), tar
 
 # Measures
 m1 = rmse
-m2 = setAggregation(rmse, train.rmse)
+m2 = setAggregation(rmse, train.rmse) # unload Metrics package if error
 
 # specify mlr learner with some nice hyperpars
 set.seed(123)
@@ -85,7 +86,7 @@ ps = makeParamSet(
   makeIntegerParam("num.trees", lower = 20, upper = 100),
   #makeIntegerParam("min.node.size", lower = 1, upper = 8),
   #makeDiscreteParam("num.trees", values = c(200, 250, 500, 750, 1000)),
-  makeIntegerParam("mtry", lower = 5, upper = 10)
+  makeIntegerParam("mtry", lower = 5, upper = 20)
 )
 
 # 2) Use 3-fold Cross-Validation to measure improvements
@@ -102,7 +103,7 @@ res = tuneParams(lrn,
                  task = trainTask, 
                  resampling = rdesc,
                  par.set = ps, 
-                 control = makeTuneControlGrid(resolution = 2L),
+                 control = makeTuneControlGrid(resolution = 5L),
                  measures = list(m1, m2)
                  )                 
 
@@ -187,6 +188,7 @@ pred = getPredictionResponse(predict(final_mod, testTask))
 summary(pred)
 
 SUBMISSION_FILE = "Data/sample_submission.csv"
+library(data.table)
 submission = fread(SUBMISSION_FILE, colClasses = c("integer", "numeric"))
 submission$SalePrice = pred
 write.csv(submission,file = 'Submissions/ranger-mlr-v2-12-22-16.csv',row.names = FALSE)
