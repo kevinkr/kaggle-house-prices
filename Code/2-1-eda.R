@@ -128,12 +128,12 @@ fullSet$newBsmtFinTypeSF <- as.numeric(factor(fullSet$BsmtFinType1, levels=c("No
                                                                              "LWQ", "Rec", "BLQ", "ALQ", "GLQ")))
 fullSet$newBsmtFinTypeSF <- fullSet$newBsmtFinTypeSF * fullSet$BsmtFinSF1
 
+# drop columns used in new vars
+fullSet <- subset(fullSet, select = -c(BsmtQual,TotalBsmtSF,BsmtFinType1,BsmtFinSF1))
 
 # get var names for factors and numerics
 cat.var <- names(fullSet)[which(sapply(fullSet, is.factor))]
 num.var <- names(fullSet)[which(sapply(fullSet, is.numeric))]
-num.var <- setdiff(num.var, c("Id", "SalePrice"))
-
 
 # Adjust skewness in continuous ---------------------------------
 
@@ -165,11 +165,23 @@ num.var <- setdiff(num.var, c("Id", "SalePrice"))
 # for (f in cont_nums) {
 #   fullSet[, eval(as.name(f)) := scale(eval(as.name(f)))]
 # }
+feature_classes <- sapply(names(fullSet),function(x){class(fullSet[[x]])})
+numeric_feats <-names(feature_classes[feature_classes != "factor"])
+# determine skew for each numeric feature
+library(moments)
+skewed_feats <- sapply(num.var,function(x){skewness(fullSet[[x]],na.rm=TRUE)})
 
+# keep only features that exceed a threshold for skewness
+skewed_feats <- skewed_feats[skewed_feats > 0.75]
+
+# transform excessively skewed features with log(x + 1)
+for(x in names(skewed_feats)) {
+  fullSet[[x]] <- log(fullSet[[x]] + 1)
+}
 
 # Multicollinearity of numeric variables ---------------------------------------------
 library(caret)
-correlCutOff <- 0.80
+correlCutOff <- 0.90
 #df = train[,(names(train) %in% num.var)]
 #df = fullSet[,(names(fullSet) %in% num.var)] # use fullSet for analysis
 df <- subset(fullSet, select = num.var)
@@ -206,7 +218,7 @@ for (n in cat.var) {
   #print(n)
   # call function to return category names for reduction, number is cutoff val
   #weak.prop.names <- reduce_cats(cat.name, 0.01)
-  weak.prop.names <- reduce_cats(n, 0.03)
+  weak.prop.names <- reduce_cats(n, 0.05)
   # filter data set by categories that are in the weak prop names vector using %in% search'
   # first convert to character
   fullSet[[n]] <- as.character(fullSet[[n]])

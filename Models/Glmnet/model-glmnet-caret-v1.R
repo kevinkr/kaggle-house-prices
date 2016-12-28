@@ -1,12 +1,14 @@
 # House prices Kaggle competition
 # Start: 12-26-16
-library(glmnet)
 library(caret)
-test <- subset(test, select = -c(SalePrice))
-test.m <- data.matrix(test)
 
-subTrain.m <- data.matrix(train)
-subTrain.y <- data.matrix(train$SalePrice)
+# test <- subset(test, select = -c(SalePrice))
+# test.m <- data.matrix(test)
+# 
+# subTrain.m <- data.matrix(train)
+train$SalePrice <- log(train$SalePrice + 1)
+y <- train$SalePrice
+#train <- subset(train, select = -c(SalePrice))
 
 # set up caret model training parameters
 # model specific training parameter
@@ -22,15 +24,17 @@ lambdas <- seq(1,0,-0.001)
 
 # train model
 set.seed(123)  # for reproducibility
-model_ridge <- train(SalePrice, train,
-                     method='glmnet'
-)
+model_ridge <- train(x=X_train,y=y,
+                     method="glmnet",
+                     metric="RMSE",
+                     maximize=FALSE,
+                     trControl=CARET.TRAIN.CTRL,
+                     tuneGrid=expand.grid(alpha=0, # Ridge regression
+                                          lambda=lambdas))
 
 
-ggplot(data=filter(model_ridge$result,RMSE<0.14)) +
+ggplot(data=filter(model_ridge$result,RMSE<0.16)) +
   geom_line(aes(x=lambda,y=RMSE))
-
-
 
 mean(model_ridge$resample$RMSE)
 
@@ -38,7 +42,7 @@ mean(model_ridge$resample$RMSE)
 
 # train model
 set.seed(123)  # for reproducibility
-model_lasso <- train(x=subTrain.m,y=subTrain.y,
+model_lasso <- train(x=X_train,y=y,
                      method="glmnet",
                      metric="RMSE",
                      maximize=FALSE,
@@ -85,5 +89,6 @@ ggplot(imp_coef) +
 preds <- exp(predict(model_lasso,newdata=X_test)) - 1
 
 # construct data frame for solution
-solution <- data.frame(Id=as.integer(rownames(X_test)),SalePrice=preds)
-write.csv(solution,"ridge_sol.csv",row.names=FALSE)
+submission = read.csv("Data/sample_submission.csv", colClasses = c("integer", "numeric"))
+submission$SalePrice = preds
+write.csv(submission, "Submissions/caret-glmnet-v2-1-13-17.csv", row.names = FALSE)

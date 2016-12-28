@@ -126,12 +126,15 @@ str(train, list.len = 999)
 str(test, list.len = 999) 
 
 # Bind test and train
-test$SalePrice <- -99
-test$isTest <- rep(1,nrow(test))
-train$isTest <- rep(0,nrow(train))
-fullSet <- rbind(test,train)
+# test$SalePrice <- -99
+# test$isTest <- rep(1,nrow(test))
+# train$isTest <- rep(0,nrow(train))
+# fullSet <- rbind(test,train)
 
-#fullSet <- fullSet %>% mutate_each_(funs(factor), cat.var)
+
+# combine train and test data for preprocessing
+fullSet <- rbind(select(train,MSSubClass:SaleCondition),
+                  select(test,MSSubClass:SaleCondition))
 
 # correct variable names changed by read.csv
 names(fullSet)[names(fullSet) == 'X1stFlrSF'] <- 'FirstFlrSF'
