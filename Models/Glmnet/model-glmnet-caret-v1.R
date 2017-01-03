@@ -6,7 +6,7 @@ library(caret)
 # test.m <- data.matrix(test)
 # 
 # subTrain.m <- data.matrix(train)
-train$SalePrice <- log(train$SalePrice + 1)
+train$SalePrice <- log(train$SalePrice + 200)
 y <- train$SalePrice
 #train <- subset(train, select = -c(SalePrice))
 
@@ -33,7 +33,7 @@ model_ridge <- train(x=X_train,y=y,
                                           lambda=lambdas))
 
 
-ggplot(data=filter(model_ridge$result,RMSE<0.16)) +
+ggplot(data=filter(model_ridge$result,RMSE<0.15)) +
   geom_line(aes(x=lambda,y=RMSE))
 
 mean(model_ridge$resample$RMSE)
@@ -50,8 +50,7 @@ model_lasso <- train(x=X_train,y=y,
                      tuneGrid=expand.grid(alpha=1,  # Lasso regression
                                           lambda=c(1,0.1,0.05,0.01,seq(0.009,0.001,-0.001),
                                                    0.00075,0.0005,0.0001)))
-model_lasso
-
+#model_lasso
 
 mean(model_lasso$resample$RMSE)
 
@@ -91,4 +90,4 @@ preds <- exp(predict(model_lasso,newdata=X_test)) - 1
 # construct data frame for solution
 submission = read.csv("Data/sample_submission.csv", colClasses = c("integer", "numeric"))
 submission$SalePrice = preds
-write.csv(submission, "Submissions/caret-glmnet-v2-1-13-17.csv", row.names = FALSE)
+write.csv(submission, "Submissions/caret-glmnet-v3-1-13-17.csv", row.names = FALSE)
