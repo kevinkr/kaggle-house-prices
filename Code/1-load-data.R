@@ -5,7 +5,7 @@ options(scipen=999) # remove scientific notation
 
 # library(dtplyr)
 # library(data.table)
-# library(dplyr)
+ library(dplyr)
 # library(e1071)
 # library(forecast)
 # library(MASS)
@@ -117,20 +117,28 @@ test.raw <- readData(housing_data.path, test.data.file,
                      test.column.types, missing.types)
 test <- test.raw
 
+# drop some outliers from train ----------------------------
+# Remove outliers with LotArea bigger than 60000
+lotOutliers <- which(with( train, LotArea > 60000 ))
+lotOutliers
+train <- train[ -lotOutliers, ]
+
+# Remove outliers where SalePrice/TotRmsAbvGrd > 400
+# salePriceOutliers < which(with( train, SalePrice/TotRmsAbvGrd > 400))
+# salePriceOutliers
+# fullSet <- fullSet[ -salePriceOutliers, ]
+
+# Drop outlier entries where SecondFlrSF > 1800
+secondFlrSFOutliers <- which(with( train, X2ndFlrSF > 1800 ))
+secondFlrSFOutliers
+train <- train[ -secondFlrSFOutliers, ]
+
+# Drop outlier entries where FirstFlrSF > 2600
+FirstFlrSFOutliers <- which(with( train, X1stFlrSF > 2600 ))
+FirstFlrSFOutliers
+train <- train[ -FirstFlrSFOutliers, ]
+
 # Adjust categorical features ---------------------------------------------
-head(train)
-head(test)
-
-#Examine data
-str(train, list.len = 999) 
-str(test, list.len = 999) 
-
-# Bind test and train
-# test$SalePrice <- -99
-# test$isTest <- rep(1,nrow(test))
-# train$isTest <- rep(0,nrow(train))
-# fullSet <- rbind(test,train)
-
 
 # combine train and test data for preprocessing
 fullSet <- rbind(select(train,MSSubClass:SaleCondition),
@@ -194,6 +202,3 @@ fullSet$Fence[is.na(fullSet$Fence)] <- "No Fence"
 
 fullSet$MiscFeature[is.na(fullSet$MiscFeature)] <- "None"
 fullSet$MiscFeature <- factor(fullSet$MiscFeature)
-
-
-

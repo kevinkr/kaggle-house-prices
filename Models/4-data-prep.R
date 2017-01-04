@@ -1,10 +1,6 @@
 
 # Data Modeling Preparation -----------------------------------------------
 # load previous code
-#source("Code/2-1-eda.R")
-
-
-
 
 ##########################################
 # split back into test and train
@@ -28,9 +24,14 @@ gc()
 
 library(caret)
 set.seed(1469)
-train <- subset(train, select = -c(Id))
-rowsTrain <- createDataPartition(train$SalePrice
-                                 , p = 0.8
+TestX_train <- cbind(X_train,SalePrice=train$SalePrice)
+rowsTrain <- createDataPartition(TestX_train$SalePrice
+                                 , p = 0.65
                                  , list = FALSE)
-testTrain <- train[rowsTrain,]
-validTrain <- train[-rowsTrain,]
+testTrain <- TestX_train[rowsTrain,]
+testY <- log(testTrain$SalePrice + 200)
+testTrain <- subset(testTrain, select = -c(SalePrice))
+
+validTrain <- TestX_train[-rowsTrain,]
+validY <- log(validTrain$SalePrice + 200)
+validTrain <- subset(validTrain, select = -c(SalePrice))

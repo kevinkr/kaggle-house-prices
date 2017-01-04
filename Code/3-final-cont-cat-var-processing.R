@@ -47,7 +47,7 @@ skewed_feats <- skewed_feats[abs(skewed_feats) > 0.80]
 
 # transform excessively skewed features with log(x + 1)
 for(x in names(skewed_feats)) {
-  fullSet[[x]] <- log(fullSet[[x]] + 200)
+  fullSet[[x]] <- log(fullSet[[x]] + 1)
 }
 
 
@@ -90,7 +90,7 @@ for (n in cat.var) {
   #print(n)
   # call function to return category names for reduction, number is cutoff val
   #weak.prop.names <- reduce_cats(cat.name, 0.01)
-  weak.prop.names <- reduce_cats(n, 0.01)
+  weak.prop.names <- reduce_cats(n, 0.05)
   # filter data set by categories that are in the weak prop names vector using %in% search'
   # first convert to character
   fullSet[[n]] <- as.character(fullSet[[n]])
