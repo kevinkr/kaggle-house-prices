@@ -1,15 +1,14 @@
 # House prices Kaggle competition
 # Start: 12-26-16
+# Glmnet
+# All factors must be numeric
 library(caret)
 
-# test <- subset(test, select = -c(SalePrice))
-# test.m <- data.matrix(test)
-# 
-# subTrain.m <- data.matrix(train)
 train$SalePrice <- log(train$SalePrice + 200)
 y <- train$SalePrice
-#train <- subset(train, select = -c(SalePrice))
-
+ 
+X_train <- data.matrix(X_train)
+X_test <- data.matrix(X_test)
 # set up caret model training parameters
 # model specific training parameter
 CARET.TRAIN.CTRL <- trainControl(method="repeatedcv",
@@ -21,6 +20,7 @@ CARET.TRAIN.CTRL <- trainControl(method="repeatedcv",
 # test out Ridge regression model
 
 lambdas <- seq(1,0,-0.001)
+
 
 # train model
 set.seed(123)  # for reproducibility
@@ -53,7 +53,13 @@ model_lasso <- train(x=X_train,y=y,
 #model_lasso
 
 mean(model_lasso$resample$RMSE)
+resultsTableExport <- cbind(resultsTable,Model="glmnet",lowestRmse=mean(model_lasso$resample$RMSE))
+currentDateTime <- strftime(Sys.time(), "%Y %m %d %H %M %S") 
 
+csvFileName <- paste("C:/Users/kruegkj/Documents/GitHub/kaggle-house-prices/",
+                     currentDateTime,".csv",sep="") 
+write.csv(resultsTableExport, file=csvFileName) 
+rm(resultsTableExport)
 
 # extract coefficients for the best performing model
 coef <- data.frame(coef.name = dimnames(coef(model_lasso$finalModel,s=model_lasso$bestTune$lambda))[[1]], 
@@ -85,9 +91,9 @@ ggplot(imp_coef) +
   theme(axis.title=element_blank())
 
 # make create submission file
-preds <- exp(predict(model_lasso,newdata=X_test)) - 1
+preds <- exp(predict(model_lasso,newdata=X_test)) - 200
 
 # construct data frame for solution
 submission = read.csv("Data/sample_submission.csv", colClasses = c("integer", "numeric"))
 submission$SalePrice = preds
-write.csv(submission, "Submissions/caret-glmnet-v3-1-13-17.csv", row.names = FALSE)
+write.csv(submission, "Submissions/caret-glmnet-v7-1-12-17.csv", row.names = FALSE)

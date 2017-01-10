@@ -4,7 +4,7 @@
 
 colSums(sapply(train, is.na))
 colSums(sapply(test, is.na))
-colSums(sapply(fullSet, is.nan)) > 0 # list of vars with missing values
+colSums(sapply(fullSet, is.na)) > 0 # list of vars with missing values
 
 # Resolve missing values --------------------------------------------------
 
@@ -27,6 +27,9 @@ fullSet$LotFrontage <- imputeMedian(fullSet$LotFrontage, fullSet$Neighborhood, l
 #sum(is.na(fullSet$Utilities))
 #table(fullSet$Utilities)
 fullSet$Utilities[is.na(fullSet$Utilities)] <- "AllPub"
+# drop anyway
+fullSet <- subset(fullSet, select = -c(Utilities))
+
 # Exterior1st
 #sum(is.na(fullSet$Exterior1st))
 #table(fullSet$Exterior1st)

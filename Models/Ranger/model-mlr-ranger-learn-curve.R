@@ -59,8 +59,12 @@ getFeatureImportanceLearner.regr.ranger = function(.learner, .model, ...) {
 }
 
 # create mlr train and test task
-trainTask = makeRegrTask(data = as.data.frame(testTrain), target = "SalePrice")
-testTask = makeRegrTask(data = as.data.frame(subset(test, select = c(-Id))), target = "SalePrice")
+train$SalePrice <- log(train$SalePrice + 200)
+y <- train$SalePrice
+X_train <- cbind(X_train,SalePrice=y)
+X_test <- cbind(X_test,SalePrice=-99)
+trainTask = makeRegrTask(data = as.data.frame(X_train), target = "SalePrice")
+testTask = makeRegrTask(data = as.data.frame(X_test), target = "SalePrice")
 
 # Measures
 m1 = rmse
@@ -93,7 +97,7 @@ ps = makeParamSet(
 rdesc = makeResampleDesc("CV", iters = 10L, predict = "both")
 
 # 3) Here we use random search (with 5 Iterations) to find the optimal hyperparameter
-ctrl =  makeTuneControlRandom(maxit = 5)
+ctrl =  makeTuneControlRandom(maxit = 10)
 
 # 4) now use the learner on the training Task with the 3-fold CV to optimize your set of parameters in parallel
 #parallelStartMulticore(5)
@@ -103,7 +107,7 @@ res = tuneParams(lrn,
                  task = trainTask, 
                  resampling = rdesc,
                  par.set = ps, 
-                 control = makeTuneControlGrid(resolution = 5L),
+                 control = makeTuneControlGrid(resolution = 10L),
                  measures = list(m1, m2)
                  )                 
 
@@ -113,7 +117,7 @@ mod = train(lrn, trainTask)
 
 predict = predict(mod, trainTask)
 predict
-rmse(log(testTrain$SalePrice),log(as.data.frame(predict)))
+mean(rmse(log(X_train$SalePrice),log(as.data.frame(predict))))
 
 # predict on new data
 predict = predict(mod, newdata = validTrain)
