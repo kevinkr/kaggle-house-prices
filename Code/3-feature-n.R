@@ -43,3 +43,15 @@ fullSet$NearWater[fullSet$Neighborhood == 'ClearCr' | fullSet$Neighborhood == 'C
                     fullSet$Neighborhood == 'StoneBr' ] <- 1 
 fullSet$NearWater <- as.factor(fullSet$NearWater)
 table(fullSet$NearWater)
+
+# add mean and list of neighbors
+fullSet <- merge(fullSet, neighborhoodNeighbors, by = "Neighborhood") 
+library(plyr)
+# add mean of overall quality
+meanOverallQual <- ddply(fullSet, .(Neighborhood), plyr::summarize,  meanOverallNbrhdQ=mean(as.numeric(OverallQual)))
+fullSet <- merge(fullSet, meanOverallQual, by = "Neighborhood") 
+
+# add mean of overall condition
+meanOverallCond <- ddply(fullSet, .(Neighborhood), plyr::summarize,  meanOverallNbrhdC=mean(as.numeric(OverallCond)))
+fullSet <- merge(fullSet, meanOverallCond, by = "Neighborhood") 
+

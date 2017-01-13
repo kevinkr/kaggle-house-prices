@@ -9,7 +9,7 @@
 # B - Time-based changed...Decade built, new house, seasons, selling season
 # C - Remodelling related
 # D - First floor only indicator
-# E - Area-based engineering - Cuts of GrLivArea
+# E - Area-based engineering - Cuts of GrLivArea, sum of outdoor space
 # F - GrLivArea / FirstFlrSF
 # G - Reduce variables on certain categories with low representation
 # H - Scale all numeric variables
@@ -24,10 +24,10 @@
 source("Code/1-load-data.R")
 source("Code/2-1-eda.R")
 # All features
- feature_list <- list(a=1, b=1, c=1, d=1, e=1, f=1, g=0, h=1, i=1, j=0, k=1, l=0, m=1, n=1, o=1)
+# feature_list <- list(a=1, b=1, c=1, d=1, e=1, f=1, g=0, h=1, i=1, j=0, k=1, l=0, m=1, n=1, o=1)
 
 # Scale and skewness, basement variables   #### No significant change
-# feature_list <- list(a=1, b=0, c=0, d=0, e=0, f=0, g=0, h=1, i=1, j=0, k=0, l=0, m=0, n=0, o=0)
+ feature_list <- list(a=1, b=0, c=0, d=0, e=0, f=0, g=0, h=1, i=1, j=0, k=0, l=0, m=0, n=1, o=0)
 
 # Scale and skewness, time based change  #### No significant change
 # feature_list <- list(a=0, b=1, c=0, d=0, e=0, f=0, g=0, h=1, i=1, j=0, k=0, l=0, m=0, n=0, o=0)
@@ -121,16 +121,7 @@ if (resultsTable$a == 1) {
   print("run this code")
   source("Code/3-feature-a.R")
 }
-# feature selection h
-if (resultsTable$h == 1) {
-  print("run this code")
-  source("Code/3-feature-h.R")
-}
-# feature selection i
-if (resultsTable$i == 1) {
-  print("run this code")
-  source("Code/3-feature-i.R")
-}
+
 # feature selection j
 if (resultsTable$j == 1) {
   print("run this code")
@@ -151,3 +142,13 @@ if (resultsTable$m == 1) {
   print("run this code")
   source("Code/3-feature-m.R")
 }
+ # feature selection h
+ if (resultsTable$h == 1) {
+   print("run this code")
+   source("Code/3-feature-h.R")
+ }
+ # feature selection i
+ if (resultsTable$i == 1) {
+   print("run this code")
+   source("Code/3-feature-i.R")
+ }

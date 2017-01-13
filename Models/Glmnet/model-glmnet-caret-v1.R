@@ -12,7 +12,7 @@ X_test <- data.matrix(X_test)
 # set up caret model training parameters
 # model specific training parameter
 CARET.TRAIN.CTRL <- trainControl(method="repeatedcv",
-                                 number=5,
+                                 number=10,
                                  repeats=5,
                                  verboseIter=FALSE)
 
@@ -20,7 +20,6 @@ CARET.TRAIN.CTRL <- trainControl(method="repeatedcv",
 # test out Ridge regression model
 
 lambdas <- seq(1,0,-0.001)
-
 
 # train model
 set.seed(123)  # for reproducibility
@@ -68,6 +67,7 @@ coef <- data.frame(coef.name = dimnames(coef(model_lasso$finalModel,s=model_lass
 # exclude the (Intercept) term
 coef <- coef[-1,]
 
+
 # print summary of model results
 picked_features <- nrow(filter(coef,coef.value!=0))
 not_picked_features <- nrow(filter(coef,coef.value==0))
@@ -96,4 +96,6 @@ preds <- exp(predict(model_lasso,newdata=X_test)) - 200
 # construct data frame for solution
 submission = read.csv("Data/sample_submission.csv", colClasses = c("integer", "numeric"))
 submission$SalePrice = preds
-write.csv(submission, "Submissions/caret-glmnet-v7-1-12-17.csv", row.names = FALSE)
+write.csv(submission, "Submissions/caret-glmnet-v20-1-31-17.csv", row.names = FALSE)
+
+# PL 0.12307 CV 0.1161

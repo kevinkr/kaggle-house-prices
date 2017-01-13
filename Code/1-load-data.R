@@ -6,6 +6,7 @@ options(scipen=999) # remove scientific notation
 # library(dtplyr)
 # library(data.table)
  library(dplyr)
+library(plyr)
 # library(e1071)
 # library(forecast)
 # library(MASS)
@@ -117,6 +118,11 @@ test.raw <- readData(housing_data.path, test.data.file,
                      test.column.types, missing.types)
 test <- test.raw
 
+neighborhoodNeighbors <- read.csv("Data/nieghborhood adj neighbors.csv",header = TRUE,sep=",", fileEncoding="UTF-8-BOM")
+neighborhoodProfile <- ddply(train.raw, c("Neighborhood"), plyr::summarize,  meanNbrhd=mean(SalePrice), 
+                             medianNbrhd=median(SalePrice))
+neighborhoodNeighbors <- cbind(neighborhoodNeighbors, meanNbrhd=neighborhoodProfile$meanNbrhd)
+
 # drop some outliers from train ----------------------------
 # Remove outliers with LotArea bigger than 60000
 lotOutliers <- which(with( train, LotArea > 60000 ))
@@ -141,8 +147,8 @@ train <- train[ -FirstFlrSFOutliers, ]
 # Adjust categorical features ---------------------------------------------
 
 # combine train and test data for preprocessing
-fullSet <- rbind(select(train,MSSubClass:SaleCondition),
-                  select(test,MSSubClass:SaleCondition))
+fullSet <- rbind(dplyr::select(train,MSSubClass:SaleCondition),
+                  dplyr::select(test,MSSubClass:SaleCondition))
 
 # correct variable names changed by read.csv
 names(fullSet)[names(fullSet) == 'X1stFlrSF'] <- 'FirstFlrSF'
@@ -196,6 +202,7 @@ fullSet$PavedDrive <- ordered(fullSet$PavedDrive, levels = c("N","P","Y"))
 
 fullSet$PoolQC <- ordered(fullSet$PoolQC, levels = c("No Pool","Fa","TA","Gd","Ex"))
 fullSet$PoolQC[is.na(fullSet$PoolQC)] <- "No Pool"
+
 
 fullSet$Fence <- ordered(fullSet$Fence, levels = c("No Fence","MnWw","GdWo","MnPrv","GdPrv"))
 fullSet$Fence[is.na(fullSet$Fence)] <- "No Fence"

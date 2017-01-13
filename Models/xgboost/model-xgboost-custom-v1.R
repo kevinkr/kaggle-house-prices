@@ -109,18 +109,18 @@ xgb_params = list(
 # colsample_bytree (default=1)
 # increase eta (default=0.3) (and increase num_round when you increase eta)
 
-for (gamma in c(0, 2, 4, 6)) {
-for (min_cw in c(1, 3, 5)){
+for (gamma in c(0)) {
+for (min_cw in c(3)){
   
 for (rounds in c(1000)){
   
-  for (depth in c(1, 2, 6, 10)) {
+  for (depth in c(1)) {
     
-    for (r_sample in c(0.8, 1)) {
+    for (r_sample in c(1)) {
       
-      for (c_sample in c(0.2, 0.5, 1)) {
+      for (c_sample in c(.495)) {
         
-        for (eta_val in c(0.1, 0.2, 0.3)) {
+        for (eta_val in c(0.088)) {
           
           set.seed(1024)
           
@@ -136,7 +136,7 @@ for (rounds in c(1000)){
                           print_every_n = 20,
                           eval_metric = 'rmse',
                           verbose = FALSE,
-                          booster = 'gblinear',
+                          #booster = 'gblinear',
                           #objective = amo.fairobj2,
                           maximize=FALSE)
           
@@ -172,6 +172,11 @@ lowestRmse <- tuner_rmse[order(tuner_rmse$minRMSE.Test),][1,]
 lowestRmse
 
 resultsTableExport <- cbind(resultsTable,Model="xgboost",lowestRmse=lowestRmse)
+currentDateTime <- strftime(Sys.time(), "%Y %m %d %H %M %S") 
+csvFileName <- paste("C:/Users/kruegkj/Documents/GitHub/kaggle-house-prices/",
+                     currentDateTime,".csv",sep="") 
+write.csv(resultsTableExport, file=csvFileName) 
+rm(resultsTableExport)
 
 xgb_params = list(
   colsample_bytree = lowestRmse$c_sample,
@@ -266,7 +271,7 @@ xgb.plot.importance(importance_matrix[1:20,])
 
 submission = read.csv("Data/sample_submission.csv", colClasses = c("integer", "numeric"))
 submission$SalePrice = exp(predict(gbdt,dtest))-200
-write.csv(submission,file = 'Submissions/xgb-custom-v8-1-10-17.csv',row.names = FALSE)
+write.csv(submission,file = 'Submissions/xgb-custom-v11-1-26-17.csv',row.names = FALSE)
 
 
 

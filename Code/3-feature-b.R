@@ -40,7 +40,6 @@ fullSet$NewHouseSubClass <- 0
 fullSet$NewHouseSubClass[fullSet$MSSubClass == 20 | fullSet$MSSubClass == 60 |
                            fullSet$MSSubClass == 120 | fullSet$MSSubClass == 160] <- 1
 fullSet$NewHouseSubClass <- as.factor(fullSet$NewHouseSubClass)
-fullSet$NewHouseSubClass <- as.factor(fullSet$NewHouseSubClass)
 
 # Age of house
 fullSet$AgeOfHouse <- 2010 - fullSet$YearBuilt
@@ -48,3 +47,16 @@ fullSet$AgeOfHouse <- 2010 - fullSet$YearBuilt
 # Time since house sold
 fullSet$TimeSinceSold <- 2010 - fullSet$YrSold
 
+# OverallQualityCut
+fullSet$OverallQualCut <- 'Poor' 
+fullSet$OverallQualCut[fullSet$OverallQual > 6] <- 'Good'
+fullSet$OverallQualCut[fullSet$OverallQual > 4 & fullSet$OverallQual <= 6] <- 'Average' 
+#table(fullSet$OverallQualCut)
+fullSet$OverallQualCut <- ordered(fullSet$OverallQualCut, levels = c("Poor","Average","Good"))
+
+# OverallCondCut
+fullSet$OverallCondCut <- 'Poor' 
+fullSet$OverallCondCut[fullSet$OverallCond > 6] <- 'Good'
+fullSet$OverallCondCut[fullSet$OverallCond > 4 & fullSet$OverallQual <= 6] <- 'Average' 
+#table(fullSet$OverallCondCut)
+fullSet$OverallCondCut <- ordered(fullSet$OverallCondCut, levels = c("Poor","Average","Good"))

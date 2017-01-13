@@ -1,0 +1,26 @@
+Neighborhood	AdjacentProps
+Blmngtn	"NridgHt, Somerst, NoRidge, Gilbert, NWAmes"
+Blueste	"Crawfor, Timber"
+BrDale	"StoneBr, Gilbert, NWAmes, NPkVill"
+BrkSide	"IDOTRR, OldTown, Names"
+ClearCr	"SWISU, ClearCr, Sawyer, Veenker"
+CollgCr	Edwards
+Crawfor	"SWISU, Blueste"
+Edwards	"SWISU, ClearCr, CollgCr"
+Gilbert	"StoneBr, Blmngtn, BrDale, Somerst, NWAmes"
+IDOTRR	"BrkSide, OldTown"
+MeadowV	Mitchel
+Mitchel	MeadowV
+Names	"NPkVill, BrkSide, OldTown"
+NoRidge	"NridgHt, Somerst, Blmngtn"
+NPkVill	"BrDale, NWAmes, Names"
+NridgHt	"NoRidge, Somerst, Blmngtn"
+NWAmes	"StoneBr, Blmngtn, BrDale, Somerst, Gilbert"
+OldTown	"IDOTRR, BrkSide, Names"
+Sawyer	"SawyerW, Veenker, ClearCr"
+SawyerW	Sawyer
+Somerst	"NridgHt, Blmngtn, NoRidge, Gilbert, NWAmes"
+StoneBr	"Gilbert, NWAmes, BrDale"
+SWISU	"Ewards, ClearCr, Crawfor"
+Timber	Blueste
+Veenker	"Sawyer, ClearCr"

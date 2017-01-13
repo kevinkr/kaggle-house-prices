@@ -87,10 +87,10 @@ ps = makeParamSet(
   # for RF, start with # of trees
   # then max tree depth
   # and minimum sample leaf
-  makeIntegerParam("num.trees", lower = 20, upper = 100),
-  #makeIntegerParam("min.node.size", lower = 1, upper = 8),
+  makeIntegerParam("num.trees", lower = 100, upper = 400),
+  makeIntegerParam("min.node.size", lower = 1, upper = 10),
   #makeDiscreteParam("num.trees", values = c(200, 250, 500, 750, 1000)),
-  makeIntegerParam("mtry", lower = 5, upper = 20)
+  makeIntegerParam("mtry", lower = 18, upper = 30)
 )
 
 # 2) Use 3-fold Cross-Validation to measure improvements
@@ -110,6 +110,16 @@ res = tuneParams(lrn,
                  control = makeTuneControlGrid(resolution = 10L),
                  measures = list(m1, m2)
                  )                 
+
+
+
+resultsTableExport <- cbind(resultsTable,Model="ranger",lowestRmse=res$y[c(1)])
+currentDateTime <- strftime(Sys.time(), "%Y %m %d %H %M %S") 
+
+csvFileName <- paste("C:/Users/kruegkj/Documents/GitHub/kaggle-house-prices/",
+                     currentDateTime,".csv",sep="") 
+write.csv(resultsTableExport, file=csvFileName) 
+rm(resultsTableExport)
 
 # Train on entire dataset (using best hyperparameters)
 lrn = setHyperPars(lrn, par.vals = res$x)
@@ -138,9 +148,9 @@ ggplot(data=res_data$data, aes(x=mtry, y=rmse.train.rmse)) +
 # mtry
 # Let's explore various training set sizes for each 
 lrn_best = setHyperPars(makeLearner('regr.ranger', id = "opt_regr.ranger"), par.vals = res$x)
-lrn_max1 = setHyperPars(makeLearner('regr.ranger', id= "mtry = 11"), par.vals = list(mtry = 11))
-lrn_max5 = setHyperPars(makeLearner('regr.ranger', id= "mtry = 17"), par.vals = list(mtry = 17))
-lrn_max10 = setHyperPars(makeLearner('regr.ranger', id= "mtry = 22"), par.vals = list(mtry = 22))
+lrn_max1 = setHyperPars(makeLearner('regr.ranger', id= "mtry = 22"), par.vals = list(mtry = 22))
+lrn_max5 = setHyperPars(makeLearner('regr.ranger', id= "mtry = 26"), par.vals = list(mtry = 26))
+lrn_max10 = setHyperPars(makeLearner('regr.ranger', id= "mtry = 30"), par.vals = list(mtry = 30))
 
 r = generateLearningCurveData(list(lrn_best, lrn_max1, lrn_max5, lrn_max10, 'regr.ranger'), 
                               task = trainTask,
@@ -155,9 +165,9 @@ plotLearningCurve(r, pretty.names = FALSE)
 # num.trees
 # Let's explore various training set sizes for each 
 lrn_best = setHyperPars(makeLearner('regr.ranger', id = "opt_regr.ranger"), par.vals = res$x)
-lrn_max1 = setHyperPars(makeLearner('regr.ranger', id= "num.trees = 10"), par.vals = list(num.trees = 10))
+lrn_max1 = setHyperPars(makeLearner('regr.ranger', id= "num.trees = 10"), par.vals = list(num.trees = 150))
 lrn_max5 = setHyperPars(makeLearner('regr.ranger', id= "num.trees = 200"), par.vals = list(num.trees = 200))
-lrn_max10 = setHyperPars(makeLearner('regr.ranger', id= "num.trees = 500"), par.vals = list(num.trees = 500))
+lrn_max10 = setHyperPars(makeLearner('regr.ranger', id= "num.trees = 500"), par.vals = list(num.trees = 250))
 
 r = generateLearningCurveData(list(lrn_best, lrn_max1, lrn_max5, lrn_max10, 'regr.ranger'), 
                               task = trainTask,
@@ -188,12 +198,11 @@ r$measures.test
 fullTrainTask = makeRegrTask(data = as.data.frame(train), target = "SalePrice")
 final_mod = train(lrn, fullTrainTask)
 
-pred = getPredictionResponse(predict(final_mod, testTask))
+pred = exp(getPredictionResponse(predict(mod, testTask)))-200
 summary(pred)
 
-SUBMISSION_FILE = "Data/sample_submission.csv"
-library(data.table)
-submission = fread(SUBMISSION_FILE, colClasses = c("integer", "numeric"))
+# construct data frame for solution
+submission = read.csv("Data/sample_submission.csv", colClasses = c("integer", "numeric"))
 submission$SalePrice = pred
-write.csv(submission,file = 'Submissions/ranger-mlr-v2-12-22-16.csv',row.names = FALSE)
+write.csv(submission,file = 'Submissions/ranger-mlr-v3-1-23-17.csv',row.names = FALSE)
 

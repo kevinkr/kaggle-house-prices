@@ -17,3 +17,15 @@ fullSet$newBsmtFinTypeSF <- fullSet$newBsmtFinTypeSF * fullSet$BsmtFinSF1
 
 # drop columns used in new vars
 fullSet <- subset(fullSet, select = -c(BsmtQual,TotalBsmtSF,BsmtFinType1,BsmtFinSF1,LowQualFinSF))
+
+
+# Garage new feature
+fullSet$newGarageSizeQual <- as.numeric(factor(fullSet$GarageQual, levels=c("No Garage", "Po",
+                                                                            "Fa", "TA", "Gd", "Ex")))
+fullSet$newGarageSizeQual <- fullSet$newGarageSizeQual * 
+                                      as.numeric(factor(fullSet$GarageCond, levels=c("No Garage", "Po",
+                                                                              "Fa", "TA", "Gd", "Ex")))
+fullSet$newGarageSizeQual <- fullSet$newGarageSizeQual * fullSet$GarageArea
+
+# drop columns
+fullSet <- subset(fullSet, select = -c(GarageArea,GarageQual,GarageCond,GarageCars))

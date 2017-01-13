@@ -2,7 +2,7 @@
 
 # Check for Missing Values ------------------------------------------------
 
-colSums(sapply(train, is.na))
+colSums(sapply(fullSet, is.na))
 colSums(sapply(test, is.na))
 colSums(sapply(fullSet, is.na)) > 0 # list of vars with missing values
 
@@ -17,7 +17,7 @@ library(Hmisc)    # for impute
 list <- unique(fullSet$Neighborhood) 
 imputeMedian <- function(impute.var, filter.var, var.levels) {
   for (i in var.levels) {
-    impute.var[which(filter.var == i)] <- impute(impute.var[which(filter.var == i)])
+    impute.var[which(filter.var == i)] <- Hmisc::impute(impute.var[which(filter.var == i)])
   }
   return (impute.var)
 }
@@ -27,8 +27,7 @@ fullSet$LotFrontage <- imputeMedian(fullSet$LotFrontage, fullSet$Neighborhood, l
 #sum(is.na(fullSet$Utilities))
 #table(fullSet$Utilities)
 fullSet$Utilities[is.na(fullSet$Utilities)] <- "AllPub"
-# drop anyway
-fullSet <- subset(fullSet, select = -c(Utilities))
+
 
 # Exterior1st
 #sum(is.na(fullSet$Exterior1st))
