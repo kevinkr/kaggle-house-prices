@@ -1,5 +1,7 @@
 # House Prices: Advanced Regression Techniques 
 # Deadline March 1, 2017
+# Load data
+
 
 options(scipen=999) # remove scientific notation
 

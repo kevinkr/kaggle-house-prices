@@ -1,0 +1,90 @@
+Kaggle Home Prices Competition
+
+Summary of steps
+
+1. Load data (1-load-data)
+Read data from csv with read function
+Load neighborhood csv file compiled from map information
+Removed a couple of outliers
+Combined train and test data without id and salesprice
+Corrected some variable names, resolved NA variables and set factor levels
+
+2. Data munging (2-1-eda)
+Checking for missing values
+Impute missing values by function and visually for some categorical variables
+	imputeMedian <- function(impute.var, filter.var, var.levels) {
+	  for (i in var.levels) {
+		impute.var[which(filter.var == i)] <- Hmisc::impute(impute.var[which(filter.var == i)])
+	  }
+	  return (impute.var)
+	}
+
+3. Data plotting 2-2-eda-plotting
+Continuous
+Categorical
+Correlations
+
+4. Feature engineering
+Started with individual various features in individual files 
+ and then combined into one file for ease of use
+Tracked feature usage and model results into df that subsequently
+  dumped into csv file
+# Feature engineering and results tracking test code
+
+# Define list of features
+# i.e. A, B, C, D
+# these are features in addition to core code
+# A - Create new features combining basement & garage information
+		Used linear modeling to examine which basement and garage
+		variables were most important and used them to create new
+		variables
+# B - Time-based changed...Decade built, new house, seasons, selling season
+		Split years into decades, House sold in year it was built,
+		break months into seasons, use MSSubClass to indicate new house,
+		Age of house, time since house sold, bin OverallQual, bin OverallCond
+# C - Remodelling related
+		Recent remodel, Indicator if house has been remodeled, indicator if
+		remodeled and sold in same year
+# D - First floor only indicator
+# E - Area-based engineering - Cuts of GrLivArea, sum of outdoor space
+# F - GrLivArea / FirstFlrSF
+# G - Reduce variables on certain categories with low representation
+# H - Scale all numeric variables
+# I - Adjust skewness of all numerica variable
+# J - Reduce category variation based on some cutoff value...low variation
+		gets assigned OTHER value
+# K - Reduce zero, near zero variance using caret nearZeroVar
+# L - Reduce multicollinarity of numeric variables based on a correlation cutoff value
+# M - OHE
+# N - Geographical Features
+		Indicator if neighborhood near campus, Indicator if neighborhood south
+		of US30, near airport, near water, next to Univeristy Blvd., per neighborhood add
+		mean of overall quality and condition
+# O - Crime Level
+		Add crime level per neighborhood
+# P - Count rowsums on guality parameters
+# load from previous steps
+
+2-way and 3-way categorical interactions (3-feature-q-1way-2way-3way)
+Examined many 2-way interactions and impact on GLMnet regression results
+Also examined 1-way and there were no variables with impact
+Examined some 3-way interactions as well.
+Automated 2-way examination and identified those to keep and drop
+ (4-step-down-variable-investigation)
+Also examined continuous and categorical variable impact using same
+ automated method. 
+
+5. Data prep (4-data-prep)
+Kept track of all variables to drop
+Organized some feature engineering here after drop for OHE, continuous variable
+  scaling and adjusing skewness
+Split back into test and train 
+
+6. Modelling (5-...)
+Used caret on various linear, boosted, ensemble, tree models
+Combined numerous models into one file for comparing all models at once
+  (5-caret-model-examination)
+  
+7. Ensembles
+Used caretEnsemble to combine various models into final model for submission
+(5-caret-ensemble-vx)

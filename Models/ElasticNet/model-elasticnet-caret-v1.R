@@ -18,8 +18,10 @@ CARET.TRAIN.CTRL <- trainControl(method="repeatedcv",
 
 set.seed(99)
 
-enetGrid <- expand.grid(.lambda = c(0, 0.01, .1),
-                        .fraction = seq(.05, 1, length = 20))
+#enetGrid <- expand.grid(.lambda = c(0, 0.01, .1),
+#                        .fraction = seq(.05, 1, length = 20))
+enetGrid <- expand.grid(.lambda = c(0, .001, .01, .1), 
+                        .fraction = seq(0.05, 1, length = 20))
 
 enet.caret <- train(x=X_train, y=y,
                      method="enet",
@@ -31,7 +33,7 @@ enet.caret <- train(x=X_train, y=y,
 
 print(enet.caret)
 plot(enet.caret)
-mean(enet.caret$resample$RMSE)
+  mean(enet.caret$resample$RMSE)
 
 print(varImp(enet.caret, scale = FALSE))
 plot(varImp(enet.caret, scale = FALSE), main="Variable Importance using elasticnet Regression")
@@ -50,4 +52,4 @@ preds <- exp(predict(enet.caret,newdata=X_test)) - 200
 # construct data frame for solution
 submission = read.csv("Data/sample_submission.csv", colClasses = c("integer", "numeric"))
 submission$SalePrice = preds
-write.csv(submission, "Submissions/caret-elasticnet-v1-1-31-17.csv", row.names = FALSE)
+write.csv(submission, "Submissions/caret-elasticnet-v2-2-7-17.csv", row.names = FALSE)

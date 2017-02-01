@@ -24,7 +24,7 @@
 # load from previous steps
 source("Code/1-load-data.R")
 source("Code/2-1-eda.R")
-feature_list <- list(a=1, b=1, c=1, d=1, e=1, f=1, g=1, h=1, i=1, j=1, k=0, l=0, m=0, n=1, o=1, p=1)
+feature_list <- list(a=1, b=1, c=1, d=1, e=1, f=1, g=1, h=1, i=1, j=0, k=0, l=0, m=0, n=1, o=1, p=1)
 # Create df with feature settings
 resultsTable <- data.frame(feature_list)
 
@@ -350,5 +350,27 @@ if (resultsTable$p == 1) {
   fullSet$countPo <- rowSums(fullSet == "Po")
 }
 
+# 2-way features
+library(sqldf)
+my.f2cnt<-function(th2, vn1, vn2, filter=TRUE) {
+  df<-data.frame(f1=th2[,vn1], f2=th2[,vn2], filter=filter)
+  sum1<-sqldf("select f1, f2, count(*) as cnt from df where filter=1 group by 1,2")
+  tmp<-sqldf("select b.cnt from df a left join sum1 b on a.f1=b.f1 and a.f2=b.f2")
+  tmp$cnt[is.na(tmp$cnt)]<-0
+  return(tmp$cnt)
+}
 
+fullSet$x105<- my.f2cnt(fullSet, 'LotShape','BuiltAndSold')
+fullSet$x478<- my.f2cnt(fullSet, 'PavedDrive','MasVnrType')
+fullSet$x5<- my.f2cnt(fullSet, 'MSSubClass','ExterQual')
+fullSet$x538<- my.f2cnt(fullSet, 'SaleType','OverallQualCut')
+fullSet$x674<- my.f2cnt(fullSet, 'FirstFloorOnly','GrLivAreaCut')
+fullSet$x685<- my.f2cnt(fullSet, 'FirstFloorOnly','DecadeBuilt')
+fullSet$x71<- my.f2cnt(fullSet, 'LotShape','OverallQual')
+fullSet$x890<- my.f2cnt(fullSet, 'Neighborhood','GrLivAreaCut')
+fullSet$x92<- my.f2cnt(fullSet, 'LotShape','NewHouseSubClass')
+fullSet$x94<- my.f2cnt(fullSet, 'LotShape','NearCampus')
+fullSet$x97<- my.f2cnt(fullSet, 'LotShape','LotConfig')
+fullSet$x99<- my.f2cnt(fullSet, 'LotShape','RoofStyle')
+fullSet$x977<- my.f2cnt(fullSet, 'Exterior1st','RoofMatl')
 

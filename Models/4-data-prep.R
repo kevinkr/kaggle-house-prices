@@ -3,28 +3,42 @@
 
 ###################################
 #   From num var selection examination
-fullSet <- subset(fullSet, select = -c(MasVnrArea, HalfBath, BedroomAbvGr, GarageYrBlt,
-                                       PoolArea, MiscVal, MoSold, YrSold, TimeSinceSold,
-                                       countFa, countPo))
-#   From cat var selection examination
-fullSet <- subset(fullSet, select = -c(LandContour, HouseStyle, ExterCond, Season,
-                                       MSZoning, Street, Alley, Utilities, LotConfig,
-                                       Neighborhood, Condition1, RoofMatl, Exterior1st,
-                                       Exterior2nd, Foundation, Heating, PoolQC, 
-                                       MiscFeature, SaleType, BuiltAndSold, OverallCondCut,
-                                       RemodelAndSold, NearWater, CrimeLevel))
+# fullSet <- subset(fullSet, select = -c(MasVnrArea, HalfBath, BedroomAbvGr, GarageYrBlt,
+#                                        PoolArea, MiscVal, MoSold, YrSold, TimeSinceSold,
+#                                        countFa, countPo))
+# #   From cat var selection examination
+# fullSet <- subset(fullSet, select = -c(LandContour, HouseStyle, ExterCond, Season,
+#                                        MSZoning, Street, Alley, Utilities, LotConfig,
+#                                        Neighborhood, Condition1, RoofMatl, Exterior1st,
+#                                        Exterior2nd, Foundation, Heating, PoolQC, 
+#                                        MiscFeature, SaleType, BuiltAndSold, OverallCondCut,
+#                                        RemodelAndSold, NearWater, CrimeLevel))
+# 
+# fullSet <- subset(fullSet, select = -c(FullBath, TotRmsAbvGrd, 
+#                                         NewHouseSubClass))
+# 
+# fullSet <- subset(fullSet, select = -c(LotFrontage, FirstFlrSF, GrLiveAreaByFirstFlrSF,
+#                                        OverallCondByQual, OverallCondExp, countTA,
+#                                        x602, x607, x612, x613, x632, x633,
+#                                        x635, x648, x926, x939, x943, x959,
+#                                        x960, x966, x968, x1455, x1683, x1686,
+#                                        x1689, x2441, x2448, x2458, x2512,
+#                                        x2529, x2537, x2812, x2814, x2830, x2849,
+#                                        x2858))
 
-fullSet <- subset(fullSet, select = -c(FullBath, TotRmsAbvGrd, 
-                                        NewHouseSubClass))
-
-fullSet <- subset(fullSet, select = -c(LotFrontage, FirstFlrSF, GrLiveAreaByFirstFlrSF,
-                                       OverallCondByQual, OverallCondExp, countTA,
-                                       x602, x607, x612, x613, x632, x633,
-                                       x635, x648, x926, x939, x943, x959,
-                                       x960, x966, x968, x1455, x1683, x1686,
-                                       x1689, x2441, x2448, x2458, x2512,
-                                       x2529, x2537, x2812, x2814, x2830, x2849,
-                                       x2858))
+# revised variable selection based on stepwise analysis 2-7-17
+fullSet <- subset(fullSet, select = c(AgeOfHouse,Alley,BathTotals,BedroomAbvGr,BldgType,BsmtBaths,
+                                      BuiltAndSold,CentralAir,Condition1,countEx,countGd,countPo,countTA,
+                                      Electrical,ExterQual,Fireplaces,FirstFloorOnly,FirstFlrSF,Foundation,FullBath,
+                                      Functional,GarageFinish,GarageType,GarageYrBlt,GrLivArea,GrLivAreaCut,
+                                      GrLiveAreaByFirstFlrSF,GrLiveAreaLog,HalfBath,Heating,HeatingQC,HouseStyle,
+                                      KitchenAbvGr,KitchenQual,LandContour,LotArea,LotFrontage,LotShape,MasVnrArea,
+                                      meanOverallNbrhdC,meanOverallNbrhdQ,MoSold,MSSubClass,MSZoning,NearAirport,
+                                      NearCampus,NearWater,newBsmtFinTypeSF,newBsmtQualSF,newGarageSizeQual,
+                                      outdoorSpace,OverallCond,OverallCondCubed,OverallCondExp,OverallQual,
+                                      OverallQualCubed,OverallQualExp,PavedDrive,PoolArea,PoolQC,RoofStyle,
+                                      SaleCondition,SouthOf30,Street,TimeSinceSold,x105,x478,x5,x538,x674,x685,
+                                      x71,x890,x92,x94,x97,x977,x99))
 
 #fullSet <- subset(fullSet, select = -c(OverallQual,GrLivArea,GrLiveAreaCubed,OverallQualCut))
 
