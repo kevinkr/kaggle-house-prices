@@ -1,4 +1,6 @@
-
+source("Code/1-load-data.R")
+source("Code/2-1-eda.R")
+source("Code/3-1-feateng-full.R")
 # Data Modeling Preparation -----------------------------------------------
 
 ###################################

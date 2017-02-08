@@ -22,8 +22,7 @@
 # O - Crime Level
 # P - Count rowsums on guality parameters
 # load from previous steps
-source("Code/1-load-data.R")
-source("Code/2-1-eda.R")
+
 feature_list <- list(a=1, b=1, c=1, d=1, e=1, f=1, g=1, h=1, i=1, j=0, k=0, l=0, m=0, n=1, o=1, p=1)
 # Create df with feature settings
 resultsTable <- data.frame(feature_list)
